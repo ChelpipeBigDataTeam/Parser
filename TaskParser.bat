@@ -1,2 +1,2 @@
-cd C:\Users\Anastasiya.Mittseva\PycharmProjects\ServiceParserSites
+cd C:\Users\Anastasiya.Mittseva\PycharmProjects\Parser
 python TaskParser.py

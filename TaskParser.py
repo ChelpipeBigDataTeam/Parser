@@ -14,14 +14,14 @@ from datetime import datetime, timedelta
 socks.setdefaultproxy(socks.SOCKS5, '127.0.0.1', 1080)
 socks.wrapmodule(smtplib)
 
-path = 'C:/Users/Anastasiya.Mittseva/PycharmProjects/ServiceParserSites'
+path = os.getcwd()
 
 p = Popen(path + "/" + "start_crawlers.bat", cwd=path)
 stdout, stderr = p.communicate()
 
 data_minobr = []
-if (os.path.exists(path+ "/" + "hrefs_minobr.json")):
-    data_minobr = json.load(open(path+ "/" + "hrefs_minobr.json"))
+if (os.path.exists(path+ "/" + "hrefs_minobr_new.json")):
+    data_minobr = json.load(open(path+ "/" + "hrefs_minobr_new.json"))
 
 data_exportcenter = []
 if (os.path.exists(path+ "/" + "hrefs_exportcenter_new.json")):
@@ -48,16 +48,17 @@ if (hrefs):
                 date = hrefs[i][j].get('date')
                 body += date + ' ' + name + ' ' + url + '\n'
     if body != '':
-        login = 'pi7.iwan0ff@yandex.ru'
-        password = 'ZXcv1234'
-        recipients_emails = 'Anastasiya.Mittseva@chelpipe.ru'
+        login = 'news.sending@yandex.ru'
+        password = '12345qwert'
+        recipients = ['Dmitriy.Tropin@chelpipe.ru','Mikhail.Fedorov@chelpipe.ru','Aleksandr.Lunev@chelpipe.ru','Anastasiya.Mittseva@chelpipe.ru']
+        #recipients = ['Anastasiya.Mittseva@chelpipe.ru']
 
         msg = MIMEText(body, 'plain', 'utf-8')
         msg['Subject'] = Header('Конкурсы', 'utf-8')
         msg['From'] = login
-        msg['To'] = recipients_emails
+        msg['To'] = ", ".join(recipients)
 
         server = smtplib.SMTP_SSL('smtp.yandex.ru', 465)
         server.login(login, password)
-        server.sendmail(msg['From'], recipients_emails, msg.as_string())
+        server.sendmail(msg['From'], recipients, msg.as_string())
         server.close()

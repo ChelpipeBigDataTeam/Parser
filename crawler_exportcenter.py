@@ -8,14 +8,14 @@ class SpidyQuotesSpider(scrapy.Spider):
     quotes_base_url = 'https://www.exportcenter.ru/events/?AJAX_MODE=1&PAGEN_1=%s&date_period=all&city=&search=&rec_participation=&reg_open=Y&international='
     start_urls = [quotes_base_url % 1]
     download_delay = 1.5
-    path = 'C:/Users/Anastasiya.Mittseva/PycharmProjects/ServiceParserSites/'
+    path = os.getcwd()
 
     if (os.path.exists("hrefs_exportcenter.json") and os.stat("hrefs_exportcenter.json").st_size != 0):
-        dict_old_news = json.load(open(path+"hrefs_exportcenter.json"))
+        dict_old_news = json.load(open(path+"\\hrefs_exportcenter.json"))
     else:
         dict_old_news = []
     dict_new_news = []
-    f = open(path+'hrefs_exportcenter_new.json', 'w')
+    f = open(path+'\\hrefs_exportcenter_new.json', 'w')
     f.close()
 
     def start_requests(self):
@@ -24,8 +24,8 @@ class SpidyQuotesSpider(scrapy.Spider):
             
     def parse(self, response):
         data = []
-        if (os.path.exists(self.path+"hrefs_exportcenter.json") and os.stat(self.path+"hrefs_exportcenter.json").st_size != 0):
-                data = json.load(open(self.path+"hrefs_exportcenter.json"))
+        if (os.path.exists(self.path+"\\hrefs_exportcenter.json") and os.stat(self.path+"\\hrefs_exportcenter.json").st_size != 0):
+                data = json.load(open(self.path+"\\hrefs_exportcenter.json"))
         
         html = response.text
         soup = BeautifulSoup(html, 'lxml')
@@ -55,5 +55,5 @@ class SpidyQuotesSpider(scrapy.Spider):
             print(next_page)
             yield scrapy.Request(url = self.quotes_base_url % next_page, meta={'proxy': 'https://127.0.0.1:8085', 'proxy': 'http://127.0.0.1:8085' })
         else:
-            json.dump(self.dict_old_news, open(self.path+"hrefs_exportcenter.json", "w"), ensure_ascii=False)
-            json.dump(self.dict_new_news, open(self.path+"hrefs_exportcenter_new.json", "w"), ensure_ascii=False)
+            json.dump(self.dict_old_news, open(self.path+"\\hrefs_exportcenter.json", "w"), ensure_ascii=False)
+            json.dump(self.dict_new_news, open(self.path+"\\hrefs_exportcenter_new.json", "w"), ensure_ascii=False)

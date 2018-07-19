@@ -35,7 +35,13 @@ class SpidyQuotesSpider(scrapy.Spider):
     download_delay = 1.5
     next_page = 1
     dict_new_news = []
-    path = 'C:/Users/Anastasiya.Mittseva/PycharmProjects/ServiceParserSites/'
+    path = os.getcwd()
+
+    if (os.path.exists("hrefs_minobr.json") and os.stat("hrefs_minobr.json").st_size != 0):
+        dict_old_news = json.load(open(path+"\\hrefs_minobr.json"))
+    else:
+        dict_old_news = []
+    dict_new_news = []
 
     def start_requests(self):
         quotes_base_url = 'https://минобрнауки.рф/пресс-центр/by-page?page=1&events_sections=1'
@@ -43,6 +49,10 @@ class SpidyQuotesSpider(scrapy.Spider):
                              meta={'proxy': 'https://127.0.0.1:8085', 'proxy': 'http://127.0.0.1:8085'})
 
     def parse(self, response):
+        data = []
+        if (os.path.exists(self.path + "\\hrefs_minobr.json") and os.stat(self.path + "\\hrefs_minobr.json").st_size != 0):
+            data = json.load(open(self.path + "\\hrefs_minobr.json"))
+
         html = response.text
         soup = BeautifulSoup(html, 'lxml')
         news = soup.find_all('div', class_='news-item')
@@ -55,19 +65,26 @@ class SpidyQuotesSpider(scrapy.Spider):
                     'url': url,
                     'date': date_str}
 
-            days = timedelta(10)
-            deadline = datetime.now() - days
+            is_ = False
+            for i in range(len(data)):
+                if name == data[i]['name']:
+                    is_ = True
+                    break
 
-            date = int_value_from_ru_month(date_str.lower())
-            date = datetime.strptime(date, '%d %m %Y')
+            days = timedelta(100)
+            deadline = datetime.today().date() - days
 
-            if date > deadline:
+            date_news = int_value_from_ru_month(date_str.lower())
+            date_news = datetime.strptime(date_news, '%d %m %Y').date()
+
+            if date_news > deadline and is_ == False:
                 if "конкурс" in name.lower():
                     self.dict_new_news.append(href)
+                    self.dict_old_news.append(href)
             else:
                 break
 
-        if date > deadline:
+        if date_news >= deadline:
             if self.next_page < 307:
                 print(self.next_page)
                 self.next_page = self.next_page + 1
@@ -75,4 +92,5 @@ class SpidyQuotesSpider(scrapy.Spider):
                     url='https://минобрнауки.рф/пресс-центр/by-page?page=%s&events_sections=1' % self.next_page,
                     meta={'proxy': 'https://127.0.0.1:8085', 'proxy': 'http://127.0.0.1:8085'})
         else:
-            json.dump(self.dict_new_news, open(self.path+"hrefs_minobr.json", "w"), ensure_ascii=False)
+            json.dump(self.dict_old_news, open(self.path + "\\hrefs_minobr.json", "w"), ensure_ascii=False)
+            json.dump(self.dict_new_news, open(self.path + "\\hrefs_minobr_new.json", "w"), ensure_ascii=False)
