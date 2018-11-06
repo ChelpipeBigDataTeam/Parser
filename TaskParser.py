@@ -2,6 +2,7 @@ import Parser_frp74ru
 import Parser_gispgovru
 import Parser_minpromtorg
 import Parser_p218ru
+import parser_minobrauki
 from email.mime.text import MIMEText
 from email.header import Header
 import smtplib
@@ -19,17 +20,13 @@ path = os.getcwd()
 p = Popen(path + "/" + "start_crawlers.bat", cwd=path)
 stdout, stderr = p.communicate()
 
-data_minobr = []
-if (os.path.exists(path+ "/" + "hrefs_minobr_new.json")):
-    data_minobr = json.load(open(path+ "/" + "hrefs_minobr_new.json"))
-
 data_exportcenter = []
 if (os.path.exists(path+ "/" + "hrefs_exportcenter_new.json")):
     if (os.stat(path+ "/" + "hrefs_exportcenter_new.json").st_size != 0):
         data_exportcenter = json.load(open(path+ "/" + "hrefs_exportcenter_new.json"))
 
 hrefs = []
-hrefs.append(data_minobr)
+hrefs.append(parser_minobrauki.main())
 hrefs.append(data_exportcenter)
 hrefs.append(Parser_frp74ru.main())
 hrefs.append(Parser_gispgovru.main())
@@ -50,8 +47,8 @@ if (hrefs):
     if body != '':
         login = 'news.sending@yandex.ru'
         password = '12345qwert'
-        recipients = ['Dmitriy.Tropin@chelpipe.ru','Mikhail.Fedorov@chelpipe.ru','Aleksandr.Lunev@chelpipe.ru','Anastasiya.Mittseva@chelpipe.ru']
-        #recipients = ['Anastasiya.Mittseva@chelpipe.ru']
+        recipients = ['Kirill.Nikitin@chelpipe.ru','Anton.Gizatullin@chelpipe.ru','Dmitriy.Tropin@chelpipe.ru','Mikhail.Fedorov@chelpipe.ru','Aleksandr.Lunev@chelpipe.ru','Anastasiya.Mittseva@chelpipe.ru']
+        # recipients = ['Anastasiya.Mittseva@chelpipe.ru']
 
         msg = MIMEText(body, 'plain', 'utf-8')
         msg['Subject'] = Header('Конкурсы', 'utf-8')

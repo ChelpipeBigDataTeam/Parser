@@ -28,7 +28,7 @@ def int_value_from_ru_month(date_str):
     return date_str
 
 
-days = timedelta(100)
+days = timedelta(20)
 deadline = datetime.today().date() - days
 
 
@@ -38,6 +38,7 @@ def get_html(url):
         'http': 'http://127.0.0.1:8085',
     }
     r = requests.get(url, proxies=proxy)
+    # r = requests.get(url)
     return r.text
 
 
@@ -67,10 +68,11 @@ def get_page_data(html, hrefs, dict_old_news):
         date = datetime.strptime(date, '%d %m %Y').date()
 
         if date >= deadline and is_ == False:
-            if "конкурс" in str(name).lower():
+            if "конкурс" in str(name).lower() or "тендер" in name.lower():
                 data = {'name': name,
                         'url': url,
                         'date': date_str}
+                print(data)
                 hrefs.append(data)
                 dict_old_news.append(data)
         else:
@@ -79,6 +81,7 @@ def get_page_data(html, hrefs, dict_old_news):
 
 
 def main():
+    print('minpromtorg')
     base_url = "http://minpromtorg.gov.ru/press-centre/news/"
     page_part = "?from_18=&from_18="
 

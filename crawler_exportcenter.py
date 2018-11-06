@@ -2,7 +2,6 @@ import scrapy
 from bs4 import BeautifulSoup
 import os
 import json
-
 class SpidyQuotesSpider(scrapy.Spider):
     name = 'spidyquotes'
     quotes_base_url = 'https://www.exportcenter.ru/events/?AJAX_MODE=1&PAGEN_1=%s&date_period=all&city=&search=&rec_participation=&reg_open=Y&international='
@@ -21,6 +20,7 @@ class SpidyQuotesSpider(scrapy.Spider):
     def start_requests(self):
         quotes_base_url = 'https://www.exportcenter.ru/events/?AJAX_MODE=1&PAGEN_1=1&date_period=all&city=&search=&rec_participation=&reg_open=Y&international='
         yield scrapy.Request(url=quotes_base_url, callback=self.parse, meta={'proxy': 'https://127.0.0.1:8085', 'proxy': 'http://127.0.0.1:8085'})
+        # yield scrapy.Request(url=quotes_base_url, callback=self.parse)
             
     def parse(self, response):
         data = []
@@ -54,6 +54,7 @@ class SpidyQuotesSpider(scrapy.Spider):
             next_page = int(soup.find('div', class_='event-btn_more js-events-go-next').get('data-next-page'))
             print(next_page)
             yield scrapy.Request(url = self.quotes_base_url % next_page, meta={'proxy': 'https://127.0.0.1:8085', 'proxy': 'http://127.0.0.1:8085' })
+            # yield scrapy.Request(url=self.quotes_base_url % next_page)
         else:
             json.dump(self.dict_old_news, open(self.path+"\\hrefs_exportcenter.json", "w"), ensure_ascii=False)
             json.dump(self.dict_new_news, open(self.path+"\\hrefs_exportcenter_new.json", "w"), ensure_ascii=False)

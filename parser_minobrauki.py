@@ -15,23 +15,14 @@ def get_html(url):
     # r = requests.get(url)
     return r.text
 
-
-def get_total_pages(html):
-    soup = BeautifulSoup(html, 'lxml')
-    divs = soup.find('div', class_='row pagination')
-    fonts = divs.find_all('font', class_='text')[1]
-    pages = fonts.find_all('a')[-1].get('href')
-    total_pages = pages.split('=')[1].split('&')[0]
-    return int(total_pages)
-
-
 def get_page_data(html, hrefs, dict_old_news):
     soup = BeautifulSoup(html, 'lxml')
-    news = soup.find_all('div', class_='column float-left small-3')
+    divs = soup.find('ul', class_='news-list news-list_images ')
+    news = divs.find_all('li')
     for new in news:
-        name = new.find('img').get('alt')
-        url = "http://frp74.ru" + new.find('a').get('href')
-        date_str = new.find('div', class_='date').getText()
+        name = new.find('a', class_='news-list__title').getText().replace('\xa0', ' ')
+        url = "https://minobrnauki.gov.ru/" + new.find('a', class_='news-list__title').get('href')
+        date_str = new.find('time').getText()
         date_news = datetime.strptime(date_str, '%d.%m.%Y').date()
 
         is_ = False
@@ -57,16 +48,16 @@ def get_page_data(html, hrefs, dict_old_news):
 
 
 def main():
-    print('frp74ru')
-    base_url = "http://frp74.ru/news/"
-    page_part = "?PAGEN_1="
+    print('minobrnauki')
+    base_url = "https://minobrnauki.gov.ru/"
+    page_part = "ru/press-center/press-center/index.php?mode_4=default&order_4=PUB_DATE&dir_4=DESC&page_4="
 
-    if (os.path.exists("hrefs_frp74ru.json") and os.stat("hrefs_frp74ru.json").st_size != 0):
-        dict_old_news = json.load(open(path + "\\hrefs_frp74ru.json"))
+    if (os.path.exists("hrefs_minobrnauki.json") and os.stat("hrefs_minobrnauki.json").st_size != 0):
+        dict_old_news = json.load(open(path + "\\hrefs_minobrnauki.json"))
     else:
         dict_old_news = []
 
-    total_pages = get_total_pages(get_html(base_url))
+    total_pages = 50
     fl = True
     dict_new_news = []
     for i in range(1, total_pages):
@@ -76,6 +67,6 @@ def main():
         if fl == False:
             break
 
-    json.dump(dict_old_news, open(path + "\\hrefs_frp74ru.json", "w"), ensure_ascii=False)
-    json.dump(dict_new_news, open(path + "\\hrefs_frp74ru_new.json", "w"), ensure_ascii=False)
+    json.dump(dict_old_news, open(path + "\\hrefs_minobrnauki.json", "w"), ensure_ascii=False)
+    json.dump(dict_new_news, open(path + "\\hrefs_minobrnauki_new.json", "w"), ensure_ascii=False)
     return dict_new_news

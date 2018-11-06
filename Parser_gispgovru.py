@@ -32,6 +32,7 @@ def get_html(url):
         'http': 'http://127.0.0.1:8085',
     }
     r = requests.get(url, proxies=proxy)
+    # r = requests.get(url)
     return r.text
 
 
@@ -47,35 +48,55 @@ def get_total_pages(html):
 def get_page_data(html, hrefs, dict_old_news):
     soup = BeautifulSoup(html, 'lxml')
     news = soup.find_all('div', class_='item')
-    for new in news:
-        name = new.find('div', class_='iname').getText()
-        url = "https://gisp.gov.ru" + new.find('div', class_='iname').find('a').get('href')
-        date_str = new.find('div', class_='date').getText()
+    news_day = []
+    for i in range(len(news)):
+        date_str = news[i].find('div', class_='date').getText()
+        pair = news[i].find('a').get('href'), date_str
+        news_day.append(pair)
+    for k in range(len(news_day)):
+        address = "https://gisp.gov.ru" + news_day[k][0]
+        date_str = news_day[k][1]
         date_news = int_value_from_ru_month(date_str.lower())
         date_news = datetime.strptime(date_news, '%d %m %Y').date()
 
-        is_ = False
-        for i in range(len(dict_old_news)):
-            if name == dict_old_news[i]['name']:
-                is_ = True
-                break
+        html = get_html(address)
+        soup = BeautifulSoup(html, 'lxml')
+        divs = soup.find('div', class_='bcon bcon-text-style')
+        newsInDay = divs.find_all('a')
+        for new in newsInDay:
+            url = new.get('href')
+            name = new.getText()
+            if name == "":
+                continue
 
-        days = timedelta(100)
-        deadline = datetime.today().date() - days
+            is_ = False
+            for i in range(len(dict_old_news)):
+                if url == dict_old_news[i]['url']:
+                    is_ = True
+                    # break
+                    continue
 
-        if date_news >= deadline and is_ == False:
-            if "конкурс" in name.lower():
-                data = {'name': name,
-                        'url': url,
-                        'date': date_str}
-                hrefs.append(data)
-                dict_old_news.append(data)
-        else:
-            return False
+            days = timedelta(20)
+            deadline = datetime.today().date() - days
+
+            if date_news >= deadline:
+                if is_:
+                    continue
+                elif is_ == False:
+                    if "конкурс" in name.lower() or "тендер" in name.lower():
+                        data = {'name': name,
+                                    'url': url,
+                                    'date': date_str}
+                        print(data)
+                        hrefs.append(data)
+                        dict_old_news.append(data)
+            else:
+                return False
     return True
 
 
 def main():
+    print('gispgovru')
     base_url = "https://gisp.gov.ru/news/"
     page_part = "?PAGEN_1="
 
@@ -94,7 +115,7 @@ def main():
         if fl == False:
             break
 
-    json.dump(dict_old_news, open(path + "\\hrefs_gispgovru.json", "w"), ensure_ascii=False)
-    json.dump(dict_new_news, open(path + "\\hrefs_gispgovru_new.json", "w"), ensure_ascii=False)
+    json.dump(dict_old_news, open(path + "\\hrefs_gispgovru.json", "w"))
+    json.dump(dict_new_news, open(path + "\\hrefs_gispgovru_new.json", "w"))
     return dict_new_news
 

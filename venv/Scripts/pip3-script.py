@@ -1,4 +1,4 @@
-#!C:\Users\Anastasiya.Mittseva\PycharmProjects\ServiceParserSites\venv\Scripts\python.exe
+#!D:\Studing\STUDING\Magistracy\ЧТПЗ_стажировка\Parser\venv\Scripts\python.exe -x
 # EASY-INSTALL-ENTRY-SCRIPT: 'pip==10.0.1','console_scripts','pip3'
 __requires__ = 'pip==10.0.1'
 import re
